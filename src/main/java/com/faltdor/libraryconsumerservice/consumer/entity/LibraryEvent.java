@@ -1,6 +1,5 @@
 package com.faltdor.libraryconsumerservice.consumer.entity;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +20,8 @@ public class LibraryEvent {
     @Enumerated( EnumType.STRING )
     private LibraryEventType libraryEventType;
 
-    @OneToOne( mappedBy = "libraryEvent", cascade = { CascadeType.ALL } )
-    @ToString.Exclude
+    //@OneToOne( mappedBy = "libraryEvent")
+    //@ToString.Exclude
+    @Transient
     private Book book;
 }
