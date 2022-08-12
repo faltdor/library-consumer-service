@@ -15,15 +15,13 @@ import javax.persistence.*;
 public class LibraryEvent {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue( strategy = GenerationType.AUTO )
     private Integer libraryEventId;
 
-    @NotNull
-    @Enumerated( EnumType.STRING)
+    @Enumerated( EnumType.STRING )
     private LibraryEventType libraryEventType;
 
-    @NotNull
-    @OneToOne(mappedBy = "libraryEvent", cascade = CascadeType.ALL)
+    @OneToOne( mappedBy = "libraryEvent", cascade = { CascadeType.ALL } )
     @ToString.Exclude
     private Book book;
 }

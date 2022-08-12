@@ -10,19 +10,19 @@ import javax.persistence.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Data
+@Builder
 @Entity
 public class Book {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer bookId;
 
     private String bookName;
 
     private String bookAuthor;
 
-    @OneToOne
+    @OneToOne( cascade = {CascadeType.ALL})
     @JoinColumn(name = "libraryEventId")
     private LibraryEvent libraryEvent;
 }
