@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 @TestPropertySource( properties = { "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
                                     "spring.kafka.consumer.bootstrap-servers=${spring.embedded.kafka.brokers}",
                                     "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.IntegerSerializer",
-                                    "spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer",
+                                    "spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer"
 } )
 public class LibraryConsumerIntegrationTest {
 
@@ -97,5 +98,24 @@ public class LibraryConsumerIntegrationTest {
         assert book.getBookId() == 1;
         assert book.getBookName().equals( bookName );
         assert book.getBookAuthor().equals( bookAuthor );
+    }
+
+    @Test
+    public void publishAndConsumeLibraryMessage_withNullEventType() throws ExecutionException, InterruptedException, JsonProcessingException {
+
+        final String bookName = "name of book";
+        final String bookAuthor = "any book";
+        final String message = "{\"libraryEvent\":null,\"libraryEventType\":\"UPDATE\",\"book\":{\"bookId\":1,\"bookName\":\"" + bookName + "\",\"bookAuthor\":\"" + bookAuthor + "\"}}";
+
+        kafkaTemplate.sendDefault( message ).get();
+
+        CountDownLatch countDownLatch = new CountDownLatch( 1 );
+        countDownLatch.await( 5, TimeUnit.SECONDS );
+
+
+        verify( libraryConsumerSpy, times( 3 ) ).onMessage( isA( ConsumerRecord.class ) );
+        verify( libraryEventService, times( 3 ) ).processLibraryEvent( isA( ConsumerRecord.class ) );
+
+        assert bookEventRepository.findById( 1 ).isEmpty();
     }
 }
